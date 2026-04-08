@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# 1. CONFIGURACIÓN DE PÁGINA Y TEMA
+# 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
     page_title="Oráculo Personal",
     page_icon="🔮",
@@ -9,42 +9,67 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILO CSS PERSONALIZADO (Aquí es donde ocurre la magia visual)
+# 2. ESTILO CSS MEJORADO (Más luz y contraste)
 st.markdown("""
     <style>
-    /* Fondo místico y fuentes */
+    /* Fondo gris pizarra suave, no negro total */
     .stApp {
-        background-color: #0E1117;
-        color: #E0E0E0;
+        background-color: #F0F2F6;
+        color: #1A1A1A;
     }
+    
+    /* Título principal con color vibrante */
     h1 {
-        color: #9D50BB;
+        color: #4A148C;
         text-align: center;
-        font-family: 'Serif';
-        text-shadow: 2px 2px 4px #000000;
+        font-family: 'Helvetica';
+        font-weight: 800;
+        padding-bottom: 20px;
     }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        justify-content: center;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #1F2630;
-        border-radius: 10px 10px 0px 0px;
-        color: white;
-        padding: 10px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #6E48AA !important;
-    }
-    /* Tarjetas de información */
-    .metric-card {
-        background-color: #1F2630;
+
+    /* Caja blanca para los selectores (Contraste alto) */
+    .stSelectbox, .stRadio {
+        background-color: #FFFFFF;
         padding: 15px;
         border-radius: 15px;
-        border-left: 5px solid #9D50BB;
-        margin-bottom: 10px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    /* Pestañas (Tabs) más visibles */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #E1E4E8;
+        border-radius: 10px;
+        padding: 5px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        color: #4A4A4A !important;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #FFFFFF !important;
+        border-radius: 8px;
+        color: #4A148C !important;
+    }
+
+    /* Tarjetas de información claras */
+    .metric-card {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 20px;
+        border-left: 8px solid #7B1FA2;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+        color: #1A1A1A;
+    }
+    
+    /* Estilo para los textos de significado */
+    .significado-box {
+        background-color: #FFFFFF;
+        padding: 25px;
+        border-radius: 20px;
+        line-height: 1.6;
+        font-size: 1.1rem;
+        box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -60,14 +85,15 @@ def cargar_datos():
     return data
 
 # --- CUERPO DE LA APP ---
-st.title("✨ MI ORÁCULO MÍSTICO ✨")
+st.markdown("<h1>🔮 MI ORÁCULO PERSONAL</h1>", unsafe_allow_html=True)
 
 try:
     df = cargar_datos()
     
-    # Buscador elegante en la parte superior
-    carta_sel = st.selectbox("🔮 Consulta tu Arcano:", df['Arcano'].unique())
-    posicion = st.radio("Orientación de la energía:", ["Derecha", "Invertida"], horizontal=True)
+    # Contenedor para la selección
+    with st.container():
+        carta_sel = st.selectbox("Elije una carta del mazo:", df['Arcano'].unique())
+        posicion = st.radio("Vibración de la carta:", ["Derecha", "Invertida"], horizontal=True)
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
     st.divider()
@@ -77,39 +103,30 @@ try:
     with col1:
         st.markdown(f"""
         <div class="metric-card">
-            <h3 style='margin:0;'>🗂️ Ficha Técnica</h3>
-            <p><b>Número:</b> {fila['N°']}<br>
+            <h3 style='margin-top:0; color:#7B1FA2;'>📋 Datos Clave</h3>
+            <p style='font-size:1.1rem;'>
+            <b>N°:</b> {fila['N°']}<br>
             <b>Respuesta:</b> {fila['SI/NO']}<br>
-            <b>Tiempo:</b> {fila['Tiempo']}</p>
+            <b>Tiempo:</b> {fila['Tiempo']}
+            </p>
         </div>
         """, unsafe_allow_html=True)
         
-        st.info(f"**Representa:** {fila['Que representa']}")
+        st.markdown(f"**💡 Representa:** {fila['Que representa']}")
 
     with col2:
+        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
         if posicion == "Derecha":
-            st.markdown(f"## {carta_sel} (Al Derecho)")
-            st.success(f"**Palabra Clave:** {fila['Palabra clave']}")
+            st.markdown(f"<h2 style='color:#2E7D32; margin-top:0;'>✨ {carta_sel}</h2>", unsafe_allow_html=True)
+            st.success(f"**PALABRA CLAVE:** {fila['Palabra clave']}")
             st.write(fila['Significado'])
         else:
-            st.markdown(f"## {carta_sel} (Invertida)")
-            st.warning(f"**Palabra Clave:** {fila['Palabra invertida']}")
-            # Nota: Asegúrate de que tu Excel tenga columna 'Significado Inv' si quieres texto distinto
+            st.markdown(f"<h2 style='color:#C62828; margin-top:0;'>🔄 {carta_sel} (Invertida)</h2>", unsafe_allow_html=True)
+            st.warning(f"**PALABRA CLAVE:** {fila['Palabra invertida']}")
             st.write(fila['Significado']) 
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<br><h3 style='text-align: center;'>🔍 Enfoques Específicos</h3>", unsafe_allow_html=True)
+    st.markdown("<br><h3 style='text-align: center; color:#4A148C;'>🔍 Desglose por Temas</h3>", unsafe_allow_html=True)
     
-    # Pestañas con Iconos
-    t1, t2, t3, t4 = st.tabs(["❤️ AMOR", "💼 TRABAJO", "💰 DINERO", "🏥 SALUD"])
-    
-    with t1:
-        st.write(fila['Amor'] if posicion == "Derecha" else fila['Amor Inv'])
-    with t2:
-        st.write(fila['Trabajo'] if posicion == "Derecha" else fila['Trabajo Inv'])
-    with t3:
-        st.write(fila['Dinero'] if posicion == "Derecha" else fila['Dinero Inv'])
-    with t4:
-        st.write(fila['Salud'] if posicion == "Derecha" else fila['Salud Inv'])
-
-except Exception as e:
-    st.error(f"Error al conectar con el Oráculo: {e}")
+    # Pestañas con fondo claro
+    t1, t2, t3, t4 = st.tabs(["❤️ AMOR", "💼 TRABAJO", "💰 DINERO",
