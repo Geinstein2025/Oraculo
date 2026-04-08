@@ -4,39 +4,49 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS Centralizado (Aquí definimos los colores una sola vez)
+# 2. CSS Blindado para visibilidad en Celular
 st.markdown("""
     <style>
-    .stApp { background-color: #F8F9FB; }
+    /* Forzamos el fondo y el color de letra global */
+    .stApp { 
+        background-color: #F8F9FB !important; 
+        color: #2D3436 !important; 
+    }
     
-    /* Títulos de secciones */
+    /* Aseguramos que todo lo que escriba Streamlit sea visible */
+    p, span, div, label {
+        color: #2D3436 !important;
+    }
+
     .section-title {
-        color: #4A148C;
+        color: #4A148C !important;
         font-size: 1.5rem;
         font-weight: bold;
         border-bottom: 2px solid #E1BEE7;
         margin-bottom: 15px;
-        margin-top: 10px;
     }
 
-    /* Badge del número */
     .num-badge {
-        background-color: #7B1FA2; color: white;
+        background-color: #7B1FA2 !important; 
+        color: #FFFFFF !important; /* El número siempre blanco */
         padding: 2px 10px; border-radius: 8px;
-        font-weight: bold; font-size: 1rem; vertical-align: middle;
+        font-weight: bold;
     }
 
-    /* Etiquetas de Datos Rápidos (Debajo de orientación) */
     .mini-dato {
-        background-color: #EDE7F6;
-        color: #4A148C;
+        background-color: #EDE7F6 !important;
+        color: #4A148C !important;
         border: 1px solid #D1C4E9;
         padding: 4px 12px;
         border-radius: 15px;
         font-size: 0.85rem;
         display: inline-block;
         font-weight: bold;
-        margin-top: 5px;
+    }
+    
+    /* Forzar visibilidad en los Tabs */
+    .stTabs [data-baseweb="tab"] {
+        color: #4A4A4A !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -55,7 +65,7 @@ try:
     df = cargar_datos()
     st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # --- 1. ZONA SUPERIOR ---
+    # --- 1. SELECCIÓN ---
     col_arc, col_ene = st.columns([2, 1])
     with col_arc:
         carta_sel = st.selectbox("Elige tu Arcano:", df['Arcano'].unique())
@@ -76,38 +86,37 @@ try:
     def render_content(col_name):
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
-            st.info(texto)
-        else: st.write("_Sin detalles específicos._")
+            # Usamos un div con color forzado para el texto de los tabs
+            st.markdown(f"<div style='color: #2D3436; background-color: #E3F2FD; padding: 15px; border-radius: 10px;'>{texto}</div>", unsafe_allow_html=True)
+        else: 
+            st.write("Sin detalles específicos.")
 
     with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
     with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
     with tabs[2]: render_content('Dinero' if posicion == "Derecha" else 'Dinero Inv')
     with tabs[3]: render_content('Salud' if posicion == "Derecha" else 'Salud Inv')
 
-    # --- 3. CUERPO DE LA CARTA (DISEÑO BLINDADO) ---
+    # --- 3. SIGNIFICADO ---
     st.markdown('<div class="section-title">📖 Significado Arcano</div>', unsafe_allow_html=True)
     
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    # Contenedor principal con borde nativo (evita el error de código crudo)
     with st.container(border=True):
-        # Encabezado: Nombre y Número
         st.markdown(f"""
             <div style="margin-bottom: 10px;">
-                <span style="color:{color_vibe}; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
+                <span style="color:{color_vibe} !important; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
                 <span class="num-badge">#{fila['N°']}</span>
             </div>
-            <p style="color:#7B1FA2; font-weight:bold; font-size:1.1rem;">✨ {palabra_clave}</p>
+            <p style="color:#7B1FA2 !important; font-weight:bold; font-size:1.1rem;">✨ {palabra_clave}</p>
         """, unsafe_allow_html=True)
         
-        # Texto de Significado (Nativo)
-        st.write(fila['Significado'])
+        # Texto principal forzado a gris oscuro
+        st.markdown(f"<div style='color: #2D3436 !important; line-height: 1.6;'>{fila['Significado']}</div>", unsafe_allow_html=True)
         
-        # Espacio de Contraste para "Lo que representa"
         st.write("")
-        st.markdown("**💡 LO QUE REPRESENTA:**")
-        # Usamos st.help o st.success para dar un fondo de color sin usar HTML complejo
+        st.markdown("<b style='color: #4A148C;'>💡 LO QUE REPRESENTA:</b>", unsafe_allow_html=True)
+        # Caja de éxito con texto forzado
         st.success(fila['Que representa'])
 
 except Exception as e:
