@@ -94,3 +94,37 @@ try:
     tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
     def render_content(col_name):
+        texto = fila[col_name]
+        if pd.notna(texto) and str(texto).strip() != "":
+            st.markdown(f"<div style='color: #2D3436; background-color: #E3F2FD; padding: 15px; border-radius: 10px; line-height: 1.5;'>{texto}</div>", unsafe_allow_html=True)
+        else: 
+            st.write("Sin detalles específicos.")
+
+    with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
+    with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
+    with tabs[2]: render_content('Dinero' if posicion == "Derecha" else 'Dinero Inv')
+    with tabs[3]: render_content('Salud' if posicion == "Derecha" else 'Salud Inv')
+
+    # --- 3. SIGNIFICADO ---
+    st.markdown('<div class="section-title">📖 Significado Arcano</div>', unsafe_allow_html=True)
+    
+    color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
+    palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
+
+    with st.container(border=True):
+        st.markdown(f"""
+            <div style="margin-bottom: 10px;">
+                <span style="color:{color_vibe} !important; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
+                <span class="num-badge">#{fila['N°']}</span>
+            </div>
+            <p style="color:#7B1FA2 !important; font-weight:bold; font-size:1.1rem;">✨ {palabra_clave}</p>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"<div style='color: #2D3436 !important; line-height: 1.6;'>{fila['Significado']}</div>", unsafe_allow_html=True)
+        
+        st.write("")
+        st.markdown("<b style='color: #4A148C;'>💡 LO QUE REPRESENTA:</b>", unsafe_allow_html=True)
+        st.success(fila['Que representa'])
+
+except Exception as e:
+    st.error(f"Error: {e}")
