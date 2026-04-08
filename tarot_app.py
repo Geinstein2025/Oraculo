@@ -4,59 +4,39 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. CSS Blindado para visibilidad total
+# 2. Estilo CSS para Barra Negra con Texto Blanco
 st.markdown("""
     <style>
-    /* Fondo general */
-    .stApp { 
-        background-color: #F8F9FB !important; 
-    }
+    .stApp { background-color: #F8F9FB; }
     
-    /* --- ESTILO PARA SELECTBOX (La barra de elegir carta) --- */
-    /* Forzamos que la caja sea blanca y el texto negro */
+    /* --- SELECTOR: BARRA NEGRA / TEXTO BLANCO --- */
     div[data-baseweb="select"] > div {
-        background-color: white !important;
-        color: #2D3436 !important;
+        background-color: #1A1A1A !important; /* Negro Mate */
+        color: #FFFFFF !important;             /* Texto Blanco */
         border: 1px solid #7B1FA2 !important;
     }
     
-    /* Forzamos que la lista desplegable tenga texto visible */
+    /* Aseguramos que el icono de la flecha también sea claro */
+    div[data-baseweb="select"] svg {
+        fill: white !important;
+    }
+
+    /* Lista de opciones cuando se abre el menú */
     div[data-baseweb="popover"] li {
-        color: #2D3436 !important;
-        background-color: white !important;
-    }
-
-    /* Títulos y etiquetas */
-    .stSelectbox label, .stRadio label {
-        color: #4A148C !important;
-        font-weight: bold !important;
-    }
-
-    .section-title {
-        color: #4A148C !important;
-        font-size: 1.5rem;
-        font-weight: bold;
-        border-bottom: 2px solid #E1BEE7;
-        margin-bottom: 15px;
-    }
-
-    .num-badge {
-        background-color: #7B1FA2 !important; 
         color: #FFFFFF !important;
-        padding: 2px 10px; border-radius: 8px;
-        font-weight: bold;
+        background-color: #1A1A1A !important;
+    }
+    
+    /* Resaltado cuando pasas el dedo por una opción */
+    div[data-baseweb="popover"] li:hover {
+        background-color: #4A148C !important;
     }
 
-    .mini-dato {
-        background-color: #EDE7F6 !important;
-        color: #4A148C !important;
-        border: 1px solid #D1C4E9;
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        display: inline-block;
-        font-weight: bold;
-    }
+    /* Resto de textos de la app en Gris Oscuro para contraste */
+    p, span, label { color: #2D3436 !important; }
+    .section-title { color: #4A148C !important; font-weight: bold; font-size: 1.5rem; border-bottom: 2px solid #E1BEE7; margin-bottom: 15px; }
+    .num-badge { background-color: #7B1FA2 !important; color: white !important; padding: 2px 10px; border-radius: 8px; font-weight: bold; }
+    .mini-dato { background-color: #EDE7F6 !important; color: #4A148C !important; border: 1px solid #D1C4E9; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; display: inline-block; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -77,7 +57,6 @@ try:
     # --- 1. SELECCIÓN ---
     col_arc, col_ene = st.columns([2, 1])
     with col_arc:
-        # Selector de carta
         carta_sel = st.selectbox("Elige tu Arcano:", df['Arcano'].unique())
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
@@ -97,8 +76,7 @@ try:
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
             st.markdown(f"<div style='color: #2D3436; background-color: #E3F2FD; padding: 15px; border-radius: 10px; line-height: 1.5;'>{texto}</div>", unsafe_allow_html=True)
-        else: 
-            st.write("Sin detalles específicos.")
+        else: st.write("Sin detalles específicos.")
 
     with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
     with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
