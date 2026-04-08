@@ -4,12 +4,12 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. CSS para Barra Negra y texto visible
+# 2. CSS para Barra Negra y Etiquetas Estilo Orientación
 st.markdown("""
     <style>
     .stApp { background-color: #FFFFFF !important; }
     
-    /* Barra de Selección: NEGRA / Texto: BLANCO */
+    /* Selector: NEGRO / Texto: BLANCO */
     div[data-baseweb="select"] > div {
         background-color: #1A1A1A !important;
         border: 1px solid #7B1FA2 !important;
@@ -18,21 +18,26 @@ st.markdown("""
     div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: #1A1A1A !important; }
     div[data-baseweb="select"] svg { fill: white !important; }
 
-    /* Texto general en negro */
-    p, span, label { color: #000000 !important; }
-    h1, h2, h3 { color: #4A148C !important; }
-
-    /* Estilo para las cajitas de la derecha (Respuesta/Tiempo) */
-    .dato-mini {
-        border: 1px solid #E1BEE7;
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        margin-bottom: 5px;
-        background-color: #FDFBFF;
-        display: block;
-        text-align: center;
+    /* ETIQUETAS ESTILO ORIENTACIÓN (Pequeñas y en línea) */
+    .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
     }
+    .mini-badge {
+        background-color: #F8F9FB;
+        border: 1px solid #E1BEE7;
+        color: #4A148C !important;
+        padding: 2px 10px;
+        border-radius: 20px; /* Redondeado como los botones de radio */
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+    }
+    
+    /* Forzar texto negro en lo demás */
+    p, span, label { color: #000000 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -48,29 +53,32 @@ def cargar_datos():
 
 try:
     df = cargar_datos()
-    st.markdown("<h1 style='text-align:center;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # --- 1. SECCIÓN SUPERIOR REORGANIZADA ---
+    # --- 1. SECCIÓN SUPERIOR ---
     col_izq, col_der = st.columns([2, 1])
 
     with col_izq:
-        st.write("Elegir Arcano:")
+        st.write("**Elegir Arcano:**")
         carta_sel = st.selectbox("", df['Arcano'].unique(), label_visibility="collapsed")
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
 
     with col_der:
-        posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
-        # Cajitas a la derecha debajo de la orientación
+        posicion = st.radio("**Orientación:**", ["Derecha", "Invertida"], horizontal=True)
+        
+        # Etiquetas compactas estilo "orientación"
         st.markdown(f"""
-            <div class="dato-mini"><b>Respuesta:</b> {fila['SI/NO']}</div>
-            <div class="dato-mini"><b>Tiempo:</b> {fila['Tiempo']}</div>
-            <div class="dato-mini"><b>Número:</b> #{fila['N°']}</div>
+            <div class="badge-container">
+                <div class="mini-badge">R: {fila['SI/NO']}</div>
+                <div class="mini-badge">T: {fila['Tiempo']}</div>
+                <div class="mini-badge">#{fila['N°']}</div>
+            </div>
         """, unsafe_allow_html=True)
 
     st.divider()
 
-    # --- 2. DETALLES ESPECÍFICOS (TABS) ---
+    # --- 2. DETALLES ESPECÍFICOS ---
     st.subheader("🔍 Detalles Específicos")
     tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
@@ -85,20 +93,16 @@ try:
     with tabs[2]: render_tab('Dinero' if posicion == "Derecha" else 'Dinero Inv')
     with tabs[3]: render_tab('Salud' if posicion == "Derecha" else 'Salud Inv')
 
-    # --- 3. SIGNIFICADO (ÁREA DE ABAJO) ---
+    # --- 3. SIGNIFICADO ---
     st.subheader("📖 Interpretación")
-    
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    # Nombre y Palabra Clave
     st.markdown(f"<h2 style='color:{color_vibe}; margin-bottom:0;'>{carta_sel}</h2>", unsafe_allow_html=True)
-    st.markdown(f"<h4 style='color:{color_vibe}; opacity:0.8;'>✨ {palabra_clave}</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color:{color_vibe};'>✨ {palabra_clave}</h4>", unsafe_allow_html=True)
     
-    # Significado (Texto Negro Puro)
     st.write(fila['Significado'])
     
-    st.write("")
     st.markdown("---")
     st.markdown("**💡 LO QUE REPRESENTA:**")
     st.write(fila['Que representa'])
