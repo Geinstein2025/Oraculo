@@ -92,4 +92,12 @@ try:
     """, unsafe_allow_html=True)
 
     # Barra de datos usando columnas nativas (Esto NO falla)
-    st.
+    st.write("")
+    with st.container():
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Respuesta", fila['SI/NO'])
+        m2.metric("Tiempo", fila['Tiempo'])
+        m3.metric("Representa", fila['Que representa'])
+
+except Exception as e:
+    st.error(f"Error técnico: {e}")
