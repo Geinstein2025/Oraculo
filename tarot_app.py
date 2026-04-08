@@ -4,44 +4,30 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS (Limpiando errores previos)
+# 2. Estilo CSS (Solo para lo esencial)
 st.markdown("""
     <style>
     .stApp { background-color: #F0F2F6; }
     
-    /* Tarjeta Principal */
-    .main-card {
-        background-color: #FFFFFF;
-        padding: 25px;
-        border-radius: 20px;
-        box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
-        border-top: 6px solid #7B1FA2;
+    /* Título de la Carta con su Número */
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 5px;
     }
-
-    /* Badge del número */
-    .numero-badge {
+    .num-badge {
         background-color: #7B1FA2;
         color: white;
-        padding: 4px 12px;
-        border-radius: 10px;
-        font-size: 1.1rem;
+        padding: 2px 10px;
+        border-radius: 8px;
         font-weight: bold;
-        display: inline-block;
-        margin-left: 10px;
-    }
-
-    /* Caja de Datos Rápidos (SI/NO y Tiempo) */
-    .quick-data {
-        background-color: #F3E5F5;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        border: 1px solid #E1BEE7;
+        font-size: 1rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Conexión a Google Sheets
+# Carga de datos
 sheet_id = "1ZJNYTlIoEm8pmjw2lbjWFBENMitQy7NmG_oT5DhKkHA"
 sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -56,61 +42,61 @@ try:
     st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
     # --- 1. SELECCIÓN ---
-    col_arcano, col_energia = st.columns([2, 1])
-    with col_arcano:
-        carta_sel = st.selectbox("Selecciona tu Arcano:", df['Arcano'].unique())
-    with col_energia:
+    c_arc, c_ene = st.columns([2, 1])
+    with c_arc:
+        carta_sel = st.selectbox("Elige tu Arcano:", df['Arcano'].unique())
+    with c_ene:
         posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
 
-    # --- 2. MENSAJES ESPECÍFICOS (Arriba) ---
+    # --- 2. MENSAJES ESPECÍFICOS (ARRIBA) ---
     st.markdown("### 🔍 Mensajes Específicos")
-    t1, t2, t3, t4 = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
+    tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
     def render_content(col_name):
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
             st.info(texto)
         else:
-            st.write("_Sin detalles específicos._")
+            st.write("_Sin detalles específicos para esta posición._")
 
-    with t1: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
-    with t2: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
-    with t3: render_content('Dinero' if posicion == "Derecha" else 'Dinero Inv')
-    with t4: render_content('Salud' if posicion == "Derecha" else 'Salud Inv')
+    with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
+    with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
+    with tabs[2]: render_content('Dinero' if posicion == "Derecha" else 'Dinero Inv')
+    with tabs[3]: render_content('Salud' if posicion == "Derecha" else 'Salud Inv')
 
     st.divider()
 
-    # --- 3. DISEÑO DE LA CARTA Y DATOS ---
+    # --- 3. SIGNIFICADO Y REPRESENTACIÓN (DISEÑO SEGURO) ---
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    st.markdown(f"""
-    <div class="main-card">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <span style="color:{color_vibe}; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
-            <span class="numero-badge">#{fila['N°']}</span>
-        </div>
-        <h4 style="color:#7B1FA2; margin: 10px 0;">✨ {palabra_clave}</h4>
-        <p style="font-size:1.1rem; line-height:1.6; color:#333;">{fila['Significado']}</p>
+    # Usamos un st.container con borde para la tarjeta blanca
+    with st.container(border=True):
+        # Nombre y Número
+        st.markdown(f"""
+            <div class="header-container">
+                <h1 style="color:{color_vibe}; margin:0;">{carta_sel}</h1>
+                <span class="num-badge">#{fila['N°']}</span>
+            </div>
+        """, unsafe_allow_html=True)
         
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        # Palabra Clave y Significado
+        st.markdown(f"**✨ {palabra_clave}**")
+        st.write(fila['Significado'])
         
-        <div style="margin-bottom: 15px;">
-            <p style="color:#4A148C; font-weight:bold; margin-bottom:5px; text-transform:uppercase; font-size:0.8rem;">💡 Lo que representa:</p>
-            <p style="font-size:1.1rem; color:#444;">{fila['Que representa']}</p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.divider()
+        
+        # SECCIÓN "REPRESENTA" (Con su propio espacio total)
+        st.markdown("### 💡 Lo que representa")
+        st.write(fila['Que representa'])
 
-    # Datos rápidos en la parte inferior para que no estorben
+    # --- 4. DATOS RÁPIDOS (ABAJO) ---
     st.write("")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown(f"""<div class="quick-data"><small>RESPUESTA</small><br><b>{fila['SI/NO']}</b></div>""", unsafe_allow_html=True)
-    with c2:
-        st.markdown(f"""<div class="quick-data"><small>TIEMPO</small><br><b>{fila['Tiempo']}</b></div>""", unsafe_allow_html=True)
+    m1, m2 = st.columns(2)
+    m1.success(f"**RESPUESTA:** {fila['SI/NO']}")
+    m2.warning(f"**TIEMPO:** {fila['Tiempo']}")
 
 except Exception as e:
-    st.error(f"Error técnico: {e}")
+    st.error(f"Error: {e}")
