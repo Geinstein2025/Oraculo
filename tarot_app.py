@@ -3,7 +3,7 @@ import pandas as pd
 
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
-    page_title="Oráculo Personal",
+    page_title="Oráculo",
     page_icon="🔮",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -129,4 +129,24 @@ try:
     st.markdown("<br><h3 style='text-align: center; color:#4A148C;'>🔍 Desglose por Temas</h3>", unsafe_allow_html=True)
     
     # Pestañas con fondo claro
-    t1, t2, t3, t4 = st.tabs(["❤️ AMOR", "💼 TRABAJO", "💰 DINERO",
+    t1, t2, t3, t4 = st.tabs(["❤️ AMOR", "💼 TRABAJO", "💰 DINERO", "🏥 SALUD"])
+    
+    with t1:
+        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
+        st.write(fila['Amor'] if posicion == "Derecha" else fila['Amor Inv'])
+        st.markdown("</div>", unsafe_allow_html=True)
+    with t2:
+        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
+        st.write(fila['Trabajo'] if posicion == "Derecha" else fila['Trabajo Inv'])
+        st.markdown("</div>", unsafe_allow_html=True)
+    with t3:
+        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
+        st.write(fila['Dinero'] if posicion == "Derecha" else fila['Dinero Inv'])
+        st.markdown("</div>", unsafe_allow_html=True)
+    with t4:
+        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
+        st.write(fila['Salud'] if posicion == "Derecha" else fila['Salud Inv'])
+        st.markdown("</div>", unsafe_allow_html=True)
+
+except Exception as e:
+    st.error(f"Error al conectar con el Oráculo: {e}")
