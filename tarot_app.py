@@ -1,0 +1,66 @@
+import streamlit as st
+import pandas as pd
+
+st.set_page_config(page_title="Consultor de Tarot", layout="wide")
+
+# Conexión a tu Google Sheet
+sheet_id = "1ZJNYTlIoEm8pmjw2lbjWFBENMitQy7NmG_oT5DhKkHA"
+sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+
+@st.cache_data(ttl=60)
+def cargar_datos():
+    data = pd.read_csv(sheet_url)
+    # Limpiamos nombres de columnas (quitar espacios invisibles)
+    data.columns = [str(c).strip() for c in data.columns]
+    return data
+
+st.title("CONSULTA")
+
+try:
+    df = cargar_datos()
+    
+    # Selector de Arcano
+    lista_arcanos = df['Arcano'].dropna().unique()
+    carta_sel = st.selectbox("Selecciona un Arcano:", lista_arcanos)
+    
+    col_izq, col_der = st.columns([1, 2])
+    
+    with col_izq:
+        posicion = st.radio("Orientación de la carta:", ["Derecha", "Invertida"])
+        st.divider()
+        st.markdown(f"### 🗂️ Ficha Técnica")
+        fila = df[df['Arcano'] == carta_sel].iloc[0]
+        st.write(f"**N°:** {fila['N°']}")
+        st.write(f"**Representa:** {fila['Que representa']}")
+        st.write(f"**Tiempo:** {fila['Tiempo']}")
+        st.write(f"**SI/NO:** {fila['SI/NO']}")
+
+    with col_der:
+        if posicion == "Derecha":
+            st.header(f"✨ {carta_sel} (Al Derecho)")
+            st.success(f"**Palabra Clave:** {fila['Palabra clave']}")
+            st.subheader("Significado General")
+            st.write(fila['Significado'])
+        else:
+            st.header(f"🔄 {carta_sel} (Invertida)")
+            st.warning(f"**Palabra Clave Invertida:** {fila['Palabra invertida']}")
+            st.subheader("Significado Invertido")
+            st.write(fila['Significado']) # O la columna específica de significado invertido si la tienes
+
+        st.divider()
+        st.subheader("🔍 Desglose por Enfoque")
+        
+        # Creamos pestañas para que sea fácil de leer
+        tab1, tab2, tab3, tab4 = st.tabs(["❤️ Amor", "💰 Dinero", "💼 Trabajo", "🏥 Salud"])
+        
+        with tab1:
+            st.write(fila['Amor'] if posicion == "Derecha" else fila['Amor Inv'])
+        with tab2:
+            st.write(fila['Dinero'] if posicion == "Derecha" else fila['Dinero Inv'])
+        with tab3:
+            st.write(fila['Trabajo'] if posicion == "Derecha" else fila['Trabajo Inv'])
+        with tab4:
+            st.write(fila['Salud'] if posicion == "Derecha" else fila['Salud Inv'])
+
+except Exception as e:
+    st.error(f"Hubo un error al leer la tabla: {e}")
