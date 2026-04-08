@@ -4,41 +4,41 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. CSS DE ALTO CONTRASTE (Fondo Oscuro / Letra Blanca)
+# 2. CSS PARA FONDO OSCURO TOTAL
 st.markdown("""
     <style>
-    /* Fondo general de la app */
-    .stApp { background-color: #FFFFFF !important; }
-
-    /* BARRA DE SELECCIÓN (Negra total) */
-    div[data-baseweb="select"] > div {
-        background-color: #000000 !important;
-        border: 1px solid #4A148C !important;
-    }
-    div[data-baseweb="select"] span { color: #FFFFFF !important; }
-    div[data-baseweb="select"] svg { fill: #FFFFFF !important; }
-
-    /* LAS CAJAS DE LECTURA (Fondo Morado Oscuro para que la letra blanca brille) */
-    .caja-lectura {
-        background-color: #1F0A33 !important; /* Morado muy oscuro, casi negro */
-        color: #FFFFFF !important;           /* LETRA BLANCA */
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #7B1FA2;      /* Detalle lateral */
-        line-height: 1.6;
-        font-size: 1.1rem;
+    /* CAMBIO DE FONDO TOTAL: Esto pinta hasta los bordes */
+    .stApp, .main, .stAppHeader {
+        background-color: #120522 !important; 
     }
 
-    /* Forzamos que cualquier texto dentro de la caja sea blanco */
-    .caja-lectura p, .caja-lectura span, .caja-lectura b {
+    /* Forzar que todo texto sea BLANCO para que se vea sobre el fondo oscuro */
+    p, span, label, h1, h2, h3, h4, b, .stRadio label {
         color: #FFFFFF !important;
         -webkit-text-fill-color: #FFFFFF !important;
     }
 
-    /* Etiquetas de Respuesta, Tiempo y Número */
+    /* BARRA DE SELECCIÓN (Negra con borde brillante) */
+    div[data-baseweb="select"] > div {
+        background-color: #000000 !important;
+        border: 2px solid #7B1FA2 !important;
+    }
+
+    /* CAJAS DE LECTURA (Un poco más claras que el fondo para dar relieve) */
+    .caja-lectura {
+        background-color: #2D144A !important; 
+        color: #FFFFFF !important;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #7B1FA2;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
+
+    /* BADGES (Respuesta, Tiempo, #) */
     .mini-badge {
-        background-color: #4A148C !important;
+        background-color: #7B1FA2 !important;
         color: #FFFFFF !important;
         padding: 5px 12px;
         border-radius: 10px;
@@ -48,16 +48,14 @@ st.markdown("""
         border: 1px solid #FFFFFF;
     }
 
-    /* Títulos de secciones fuera de las cajas */
-    .label-seccion {
-        color: #4A148C !important;
-        font-weight: bold;
-        margin-top: 15px;
-        display: block;
+    /* Ajuste para los Tabs (Pestañas) */
+    .stTabs [data-baseweb="tab"] {
+        color: #FFFFFF !important;
     }
-
-    /* Radio buttons (Derecha/Invertida) */
-    .stRadio label { color: #4A148C !important; font-weight: bold !important; }
+    .stTabs [aria-selected="true"] {
+        background-color: #7B1FA2 !important;
+        border-radius: 5px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -73,10 +71,10 @@ def cargar_datos():
 
 try:
     df = cargar_datos()
-    st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
     # --- SECCIÓN SUPERIOR ---
-    st.markdown("<span class='label-seccion'>Elegir Arcano:</span>", unsafe_allow_html=True)
+    st.write("Elegir Arcano:")
     carta_sel = st.selectbox("", df['Arcano'].unique(), label_visibility="collapsed")
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
@@ -87,7 +85,7 @@ try:
     
     with col_b:
         st.markdown(f"""
-            <div style="margin-top:25px;">
+            <div style="margin-top:10px;">
                 <span class="mini-badge">R: {fila['SI/NO']}</span>
                 <span class="mini-badge">T: {fila['Tiempo']}</span>
                 <span class="mini-badge">#{fila['N°']}</span>
@@ -96,32 +94,33 @@ try:
 
     st.divider()
 
-    # --- CONTENIDO PRINCIPAL ---
-    color_v = "#2E7D32" if posicion == "Derecha" else "#C62828"
+    # --- CONTENIDO ---
+    # Colores brillantes para que resalten en el fondo oscuro
+    color_v = "#4CAF50" if posicion == "Derecha" else "#FF5252" # Verde y Rojo brillantes
     palabra_k = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    st.markdown(f"<h2 style='color:{color_v};'>{carta_sel}</h2>", unsafe_allow_html=True)
-    st.markdown(f"<h4 style='color:{color_v};'>✨ {palabra_k}</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color:{color_v} !important;'>{carta_sel}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color:{color_v} !important;'>✨ {palabra_k}</h4>", unsafe_allow_html=True)
     
-    # Significado (Caja Oscura)
-    st.markdown("<span class='label-seccion'>📖 Significado:</span>", unsafe_allow_html=True)
+    # Significado
+    st.write("📖 **Significado:**")
     st.markdown(f"<div class='caja-lectura'>{fila['Significado']}</div>", unsafe_allow_html=True)
 
-    # Detalles Específicos (Tabs)
-    st.markdown("<span class='label-seccion'>🔍 Detalles por área:</span>", unsafe_allow_html=True)
+    # Tabs
+    st.write("🔍 **Detalles por área:**")
     t1, t2, t3, t4 = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
-    def render_area(col):
+    def render_tab(col):
         val = fila[col]
         st.markdown(f"<div class='caja-lectura'>{val if pd.notna(val) else 'Sin detalles'}</div>", unsafe_allow_html=True)
 
-    with t1: render_area('Amor' if posicion == "Derecha" else 'Amor Inv')
-    with t2: render_area('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
-    with t3: render_area('Dinero' if posicion == "Derecha" else 'Dinero Inv')
-    with t4: render_area('Salud' if posicion == "Derecha" else 'Salud Inv')
+    with t1: render_tab('Amor' if posicion == "Derecha" else 'Amor Inv')
+    with t2: render_tab('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
+    with t3: render_tab('Dinero' if posicion == "Derecha" else 'Dinero Inv')
+    with t4: render_tab('Salud' if posicion == "Derecha" else 'Salud Inv')
 
     # Representa
-    st.markdown("<span class='label-seccion'>💡 Lo que representa:</span>", unsafe_allow_html=True)
+    st.write("💡 **Lo que representa:**")
     st.markdown(f"<div class='caja-lectura'>{fila['Que representa']}</div>", unsafe_allow_html=True)
 
 except Exception as e:
