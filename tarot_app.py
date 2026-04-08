@@ -15,7 +15,7 @@ st.markdown("""
         border: 1px solid #7B1FA2 !important;
     }
     div[data-baseweb="select"] div { color: #FFFFFF !important; }
-    div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: #1A1A1A !important; }
+    div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: ##4A148C !important; }
     div[data-baseweb="select"] svg { fill: white !important; }
 
     /* CAJA DE TEXTO AZUL (Igual a la de Detalles Específicos) */
@@ -75,8 +75,8 @@ try:
         posicion = st.radio("**Orientación:**", ["Derecha", "Invertida"], horizontal=True)
         st.markdown(f"""
             <div class="badge-container">
-                <div class="mini-badge">R: {fila['SI/NO']}</div>
-                <div class="mini-badge">T: {fila['Tiempo']}</div>
+                <div class="mini-badge">Respuesta: {fila['SI/NO']}</div>
+                <div class="mini-badge">Tiempo: {fila['Tiempo']}</div>
                 <div class="mini-badge">#{fila['N°']}</div>
             </div>
         """, unsafe_allow_html=True)
