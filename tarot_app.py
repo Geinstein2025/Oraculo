@@ -4,25 +4,26 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS (Solo para lo esencial)
+# 2. Estilo CSS para optimizar espacio
 st.markdown("""
     <style>
     .stApp { background-color: #F0F2F6; }
-    
-    /* Título de la Carta con su Número */
-    .header-container {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 5px;
-    }
+    .header-container { display: flex; align-items: center; gap: 10px; }
     .num-badge {
-        background-color: #7B1FA2;
-        color: white;
-        padding: 2px 10px;
+        background-color: #7B1FA2; color: white;
+        padding: 2px 8px; border-radius: 6px;
+        font-weight: bold; font-size: 0.9rem;
+    }
+    /* Estilo para las etiquetas pequeñas de datos */
+    .mini-dato {
+        background-color: #FFFFFF;
+        border: 1px solid #7B1FA2;
+        padding: 5px 10px;
         border-radius: 8px;
-        font-weight: bold;
-        font-size: 1rem;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-right: 5px;
+        margin-top: 5px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -39,18 +40,26 @@ def cargar_datos():
 
 try:
     df = cargar_datos()
-    st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:#4A148C; margin-bottom:0;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # --- 1. SELECCIÓN ---
-    c_arc, c_ene = st.columns([2, 1])
-    with c_arc:
+    # --- 1. SELECCIÓN Y DATOS RÁPIDOS (ZONA SUPERIOR) ---
+    col_arc, col_ene = st.columns([2, 1])
+    
+    with col_arc:
         carta_sel = st.selectbox("Elige tu Arcano:", df['Arcano'].unique())
-    with c_ene:
-        posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
+    
+    with col_ene:
+        posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
+        # AQUÍ UBICAMOS LOS DATOS DE RESPUESTA Y TIEMPO (Debajo de la radio)
+        st.markdown(f"""
+            <div class="mini-dato"><b>R:</b> {fila['SI/NO']}</div>
+            <div class="mini-dato"><b>T:</b> {fila['Tiempo']}</div>
+        """, unsafe_allow_html=True)
 
-    # --- 2. MENSAJES ESPECÍFICOS (ARRIBA) ---
+    # --- 2. MENSAJES ESPECÍFICOS ---
+    st.write("")
     st.markdown("### 🔍 Mensajes Específicos")
     tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
@@ -58,8 +67,7 @@ try:
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
             st.info(texto)
-        else:
-            st.write("_Sin detalles específicos para esta posición._")
+        else: st.write("_Sin detalles._")
 
     with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
     with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
@@ -68,35 +76,24 @@ try:
 
     st.divider()
 
-    # --- 3. SIGNIFICADO Y REPRESENTACIÓN (DISEÑO SEGURO) ---
+    # --- 3. SIGNIFICADO Y REPRESENTACIÓN ---
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    # Usamos un st.container con borde para la tarjeta blanca
     with st.container(border=True):
-        # Nombre y Número
         st.markdown(f"""
             <div class="header-container">
-                <h1 style="color:{color_vibe}; margin:0;">{carta_sel}</h1>
+                <h1 style="color:{color_vibe}; margin:0; font-size:1.8rem;">{carta_sel}</h1>
                 <span class="num-badge">#{fila['N°']}</span>
             </div>
+            <p style="color:#7B1FA2; font-weight:bold; margin-top:5px;">✨ {palabra_clave}</p>
         """, unsafe_allow_html=True)
         
-        # Palabra Clave y Significado
-        st.markdown(f"**✨ {palabra_clave}**")
         st.write(fila['Significado'])
         
-        st.divider()
-        
-        # SECCIÓN "REPRESENTA" (Con su propio espacio total)
-        st.markdown("### 💡 Lo que representa")
+        st.markdown("---")
+        st.markdown("**💡 Lo que representa:**")
         st.write(fila['Que representa'])
-
-    # --- 4. DATOS RÁPIDOS (ABAJO) ---
-    st.write("")
-    m1, m2 = st.columns(2)
-    m1.success(f"**RESPUESTA:** {fila['SI/NO']}")
-    m2.warning(f"**TIEMPO:** {fila['Tiempo']}")
 
 except Exception as e:
     st.error(f"Error: {e}")
