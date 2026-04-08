@@ -14,8 +14,8 @@ st.markdown("""
         background-color: #1A1A1A !important;
         border: 1px solid #7B1FA2 !important;
     }
-    div[data-baseweb="select"] div { color: ##4A148C !important; }
-    div[data-baseweb="popover"] li { color: ##4A148C !important; background-color: ##4A148C !important; }
+    div[data-baseweb="select"] div { color: #FFFFFF !important; }
+    div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: ##4A148C !important; }
     div[data-baseweb="select"] svg { fill: white !important; }
 
     /* CAJA DE TEXTO AZUL (Igual a la de Detalles Específicos) */
