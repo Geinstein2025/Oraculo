@@ -128,4 +128,20 @@ try:
     """, unsafe_allow_html=True)
 
     # --- DETALLES ESPECÍFICOS ---
-    st.markdown("### 🔍 Mensajes por
+    st.markdown("### 🔍 Mensajes por Enfoque")
+    tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
+    
+    def render_content(col):
+        contenido = fila[col]
+        if pd.notna(contenido) and str(contenido).strip() != "":
+            st.info(contenido)
+        else:
+            st.write("_Sin detalles para esta posición._")
+
+    with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
+    with tabs[1]: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
+    with tabs[2]: render_content('Dinero' if posicion == "Derecha" else 'Dinero Inv')
+    with tabs[3]: render_content('Salud' if posicion == "Derecha" else 'Salud Inv')
+
+except Exception as e:
+    st.error(f"Error: {e}")
