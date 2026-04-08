@@ -54,8 +54,8 @@ try:
         posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
         # AQUÍ UBICAMOS LOS DATOS DE RESPUESTA Y TIEMPO (Debajo de la radio)
         st.markdown(f"""
-            <div class="mini-dato"><b>R:</b> {fila['SI/NO']}</div>
-            <div class="mini-dato"><b>T:</b> {fila['Tiempo']}</div>
+            <div class="mini-dato"><b>Respuesta:</b> {fila['SI/NO']}</div>
+            <div class="mini-dato"><b>Tiempo:</b> {fila['Tiempo']}</div>
         """, unsafe_allow_html=True)
 
     # --- 2. MENSAJES ESPECÍFICOS ---
