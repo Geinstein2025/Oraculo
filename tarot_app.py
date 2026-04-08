@@ -95,4 +95,16 @@ try:
             <span style="color:{color_vibe}; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
             <span class="numero-badge">#{fila['N°']}</span>
         </div>
-        <h4 style="color:#7B1FA2; margin
+        <h4 style="color:#7B1FA2; margin: 5px 0;">✨ {palabra_clave}</h4>
+        <p style="font-size:1.1rem; line-height:1.5; color:#333;">{fila['Significado']}</p>
+        
+        <div class="data-bar">
+            <div><small>SI/NO</small><br><b>{fila['SI/NO']}</b></div>
+            <div><small>TIEMPO</small><br><b>{fila['Tiempo']}</b></div>
+            <div><small>REPRESENTA</small><br><b>{fila['Que representa']}</b></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+except Exception as e:
+    st.error(f"Error: {e}")
