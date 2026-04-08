@@ -2,79 +2,40 @@ import streamlit as st
 import pandas as pd
 
 # 1. CONFIGURACIÓN DE PÁGINA
-st.set_page_config(
-    page_title="Oráculo",
-    page_icon="🔮",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. ESTILO CSS MEJORADO (Más luz y contraste)
+# 2. ESTILO CSS REFINADO (Elimina espacios fantasma)
 st.markdown("""
     <style>
-    /* Fondo gris pizarra suave, no negro total */
-    .stApp {
-        background-color: #F0F2F6;
-        color: #1A1A1A;
-    }
+    .stApp { background-color: #F0F2F6; color: #1A1A1A; }
+    h1 { color: #4A148C; text-align: center; font-weight: 800; margin-bottom: 0px; }
     
-    /* Título principal con color vibrante */
-    h1 {
-        color: #4A148C;
-        text-align: center;
-        font-family: 'Helvetica';
-        font-weight: 800;
-        padding-bottom: 20px;
-    }
-
-    /* Caja blanca para los selectores (Contraste alto) */
-    .stSelectbox, .stRadio {
+    /* Ajuste de contenedores para evitar espacios en blanco */
+    .block-container { padding-top: 2rem; }
+    
+    .metric-card {
         background-color: #FFFFFF;
         padding: 15px;
         border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-    }
-
-    /* Pestañas (Tabs) más visibles */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #E1E4E8;
-        border-radius: 10px;
-        padding: 5px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        color: #4A4A4A !important;
-        font-weight: 600;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #FFFFFF !important;
-        border-radius: 8px;
-        color: #4A148C !important;
-    }
-
-    /* Tarjetas de información claras */
-    .metric-card {
-        background-color: #FFFFFF;
-        padding: 20px;
-        border-radius: 20px;
         border-left: 8px solid #7B1FA2;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
-        color: #1A1A1A;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 10px;
     }
     
-    /* Estilo para los textos de significado */
     .significado-box {
         background-color: #FFFFFF;
-        padding: 25px;
-        border-radius: 20px;
-        line-height: 1.6;
-        font-size: 1.1rem;
-        box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+        margin-top: 5px;
     }
+
+    /* Quitar bordes innecesarios en radio buttons */
+    div.row-widget.stRadio > div{ background-color: transparent !important; box-shadow: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# Conexión a tu Google Sheet
+# Conexión a datos
 sheet_id = "1ZJNYTlIoEm8pmjw2lbjWFBENMitQy7NmG_oT5DhKkHA"
 sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -84,16 +45,17 @@ def cargar_datos():
     data.columns = [str(c).strip() for c in data.columns]
     return data
 
-# --- CUERPO DE LA APP ---
 st.markdown("<h1>🔮 MI ORÁCULO PERSONAL</h1>", unsafe_allow_html=True)
 
 try:
     df = cargar_datos()
     
-    # Contenedor para la selección
-    with st.container():
-        carta_sel = st.selectbox("Elije una carta del mazo:", df['Arcano'].unique())
-        posicion = st.radio("Vibración de la carta:", ["Derecha", "Invertida"], horizontal=True)
+    # Selectores compactos
+    col_sel1, col_sel2 = st.columns(2)
+    with col_sel1:
+        carta_sel = st.selectbox("Carta:", df['Arcano'].unique())
+    with col_sel2:
+        posicion = st.radio("Energía:", ["Derecha", "Invertida"], horizontal=True)
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
     st.divider()
@@ -103,50 +65,47 @@ try:
     with col1:
         st.markdown(f"""
         <div class="metric-card">
-            <h3 style='margin-top:0; color:#7B1FA2;'>📋 Datos Clave</h3>
-            <p style='font-size:1.1rem;'>
-            <b>N°:</b> {fila['N°']}<br>
-            <b>Respuesta:</b> {fila['SI/NO']}<br>
-            <b>Tiempo:</b> {fila['Tiempo']}
-            </p>
+            <h4 style='margin:0; color:#7B1FA2;'>📋 Datos Clave</h4>
+            <p style='margin-bottom:0;'><b>N°:</b> {fila['N°']}<br>
+            <b>SI/NO:</b> {fila['SI/NO']}<br>
+            <b>Tiempo:</b> {fila['Tiempo']}</p>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown(f"**💡 Representa:** {fila['Que representa']}")
+        st.caption(f"💡 {fila['Que representa']}")
 
     with col2:
-        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
-        if posicion == "Derecha":
-            st.markdown(f"<h2 style='color:#2E7D32; margin-top:0;'>✨ {carta_sel}</h2>", unsafe_allow_html=True)
-            st.success(f"**PALABRA CLAVE:** {fila['Palabra clave']}")
-            st.write(fila['Significado'])
-        else:
-            st.markdown(f"<h2 style='color:#C62828; margin-top:0;'>🔄 {carta_sel} (Invertida)</h2>", unsafe_allow_html=True)
-            st.warning(f"**PALABRA CLAVE:** {fila['Palabra invertida']}")
-            st.write(fila['Significado']) 
-        st.markdown("</div>", unsafe_allow_html=True)
+        # Solo dibujamos la caja si hay significado
+        texto_sig = fila['Significado']
+        if pd.notna(texto_sig):
+            color_titulo = "#2E7D32" if posicion == "Derecha" else "#C62828"
+            label_pos = f"{carta_sel}" if posicion == "Derecha" else f"{carta_sel} (Invertida)"
+            
+            st.markdown(f"""
+            <div class='significado-box'>
+                <h2 style='color:{color_titulo}; margin:0;'>✨ {label_pos}</h2>
+                <p style='color:#666; font-weight:bold; margin-bottom:10px;'>
+                    {fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']}
+                </p>
+                <p style='margin:0;'>{texto_sig}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    st.markdown("<br><h3 style='text-align: center; color:#4A148C;'>🔍 Desglose por Temas</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color:#4A148C; margin-top:20px;'>🔍 Mensajes Específicos</h3>", unsafe_allow_html=True)
     
-    # Pestañas con fondo claro
     t1, t2, t3, t4 = st.tabs(["❤️ AMOR", "💼 TRABAJO", "💰 DINERO", "🏥 SALUD"])
     
-    with t1:
-        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
-        st.write(fila['Amor'] if posicion == "Derecha" else fila['Amor Inv'])
-        st.markdown("</div>", unsafe_allow_html=True)
-    with t2:
-        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
-        st.write(fila['Trabajo'] if posicion == "Derecha" else fila['Trabajo Inv'])
-        st.markdown("</div>", unsafe_allow_html=True)
-    with t3:
-        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
-        st.write(fila['Dinero'] if posicion == "Derecha" else fila['Dinero Inv'])
-        st.markdown("</div>", unsafe_allow_html=True)
-    with t4:
-        st.markdown("<div class='significado-box'>", unsafe_allow_html=True)
-        st.write(fila['Salud'] if posicion == "Derecha" else fila['Salud Inv'])
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Función para mostrar contenido solo si existe
+    def mostrar_tab(columna):
+        contenido = fila[columna]
+        if pd.notna(contenido) and str(contenido).strip() != "":
+            st.markdown(f"<div class='significado-box'>{contenido}</div>", unsafe_allow_html=True)
+        else:
+            st.info("No hay información específica para esta posición.")
+
+    with t1: mostrar_tab('Amor' if posicion == "Derecha" else 'Amor Inv')
+    with t2: mostrar_tab('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
+    with t3: mostrar_tab('Dinero' if posicion == "Derecha" else 'Dinero Inv')
+    with t4: mostrar_tab('Salud' if posicion == "Derecha" else 'Salud Inv')
 
 except Exception as e:
-    st.error(f"Error al conectar con el Oráculo: {e}")
+    st.error(f"Error: {e}")
