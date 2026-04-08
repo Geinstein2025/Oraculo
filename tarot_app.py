@@ -4,40 +4,35 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. CSS para visibilidad total
+# 2. CSS para Barra Negra y texto visible
 st.markdown("""
     <style>
-    /* Forzamos fondo claro en la app */
     .stApp { background-color: #FFFFFF !important; }
-
-    /* --- ESTILO DE LA BARRA DE SELECCIÓN --- */
-    /* Fondo negro para la caja */
+    
+    /* Barra de Selección: NEGRA / Texto: BLANCO */
     div[data-baseweb="select"] > div {
         background-color: #1A1A1A !important;
         border: 1px solid #7B1FA2 !important;
     }
+    div[data-baseweb="select"] div { color: #FFFFFF !important; }
+    div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: #1A1A1A !important; }
+    div[data-baseweb="select"] svg { fill: white !important; }
 
-    /* ¡CLAVE!: Color de texto BLANCO para la opción seleccionada */
-    div[data-baseweb="select"] div {
-        color: #FFFFFF !important;
+    /* Texto general en negro */
+    p, span, label { color: #000000 !important; }
+    h1, h2, h3 { color: #4A148C !important; }
+
+    /* Estilo para las cajitas de la derecha (Respuesta/Tiempo) */
+    .dato-mini {
+        border: 1px solid #E1BEE7;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        background-color: #FDFBFF;
+        display: block;
+        text-align: center;
     }
-
-    /* Color de las opciones dentro del menú desplegable */
-    div[data-baseweb="popover"] li {
-        color: #FFFFFF !important;
-        background-color: #1A1A1A !important;
-    }
-
-    /* Color de la flechita */
-    div[data-baseweb="select"] svg {
-        fill: white !important;
-    }
-
-    /* Texto general de la app en negro para que se vea siempre */
-    p, span, label, h1, h2, h3 { color: #000000 !important; }
-    
-    /* Títulos en morado */
-    .titulo-morado { color: #4A148C !important; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -53,49 +48,60 @@ def cargar_datos():
 
 try:
     df = cargar_datos()
-    st.markdown("<h1 class='titulo-morado' style='text-align:center;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # --- 1. SELECCIÓN ---
-    col_arc, col_ene = st.columns([2, 1])
-    with col_arc:
-        carta_sel = st.selectbox("Elige tu Arcano:", df['Arcano'].unique())
+    # --- 1. SECCIÓN SUPERIOR REORGANIZADA ---
+    col_izq, col_der = st.columns([2, 1])
+
+    with col_izq:
+        st.write("Elegir Arcano:")
+        carta_sel = st.selectbox("", df['Arcano'].unique(), label_visibility="collapsed")
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
-    
-    with col_ene:
+
+    with col_der:
         posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
+        # Cajitas a la derecha debajo de la orientación
+        st.markdown(f"""
+            <div class="dato-mini"><b>Respuesta:</b> {fila['SI/NO']}</div>
+            <div class="dato-mini"><b>Tiempo:</b> {fila['Tiempo']}</div>
+            <div class="dato-mini"><b>Número:</b> #{fila['N°']}</div>
+        """, unsafe_allow_html=True)
 
-    # --- 2. RESUMEN RÁPIDO ---
     st.divider()
-    c1, c2, c3 = st.columns(3)
-    c1.info(f"**Respuesta:** {fila['SI/NO']}")
-    c2.success(f"**Tiempo:** {fila['Tiempo']}")
-    c3.warning(f"**Número:** #{fila['N°']}")
 
-    # --- 3. SIGNIFICADO ---
-    palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
-    
-    st.subheader(f"✨ {palabra_clave}")
-    st.write(fila['Significado'])
-    
-    st.markdown("---")
-    st.markdown("**💡 LO QUE REPRESENTA:**")
-    st.write(fila['Que represents'] if 'Que represents' in fila else fila['Que representa'])
-
-    # --- 4. DETALLES ESPECÍFICOS ---
+    # --- 2. DETALLES ESPECÍFICOS (TABS) ---
     st.subheader("🔍 Detalles Específicos")
     tabs = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
     def render_tab(col_name):
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
-            st.write(texto)
-        else: st.write("Sin detalles adicionales.")
+            st.info(texto)
+        else: st.write("Sin detalles.")
 
     with tabs[0]: render_tab('Amor' if posicion == "Derecha" else 'Amor Inv')
     with tabs[1]: render_tab('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
     with tabs[2]: render_tab('Dinero' if posicion == "Derecha" else 'Dinero Inv')
     with tabs[3]: render_tab('Salud' if posicion == "Derecha" else 'Salud Inv')
 
+    # --- 3. SIGNIFICADO (ÁREA DE ABAJO) ---
+    st.subheader("📖 Interpretación")
+    
+    color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
+    palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
+
+    # Nombre y Palabra Clave
+    st.markdown(f"<h2 style='color:{color_vibe}; margin-bottom:0;'>{carta_sel}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color:{color_vibe}; opacity:0.8;'>✨ {palabra_clave}</h4>", unsafe_allow_html=True)
+    
+    # Significado (Texto Negro Puro)
+    st.write(fila['Significado'])
+    
+    st.write("")
+    st.markdown("---")
+    st.markdown("**💡 LO QUE REPRESENTA:**")
+    st.write(fila['Que representa'])
+
 except Exception as e:
-    st.error(f"Error al cargar: {e}")
+    st.error(f"Error: {e}")
