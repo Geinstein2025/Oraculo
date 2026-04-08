@@ -47,17 +47,16 @@ try:
     fila = df[df['Arcano'] == carta_sel].iloc[0]
     st.divider()
 
-    # --- PARTE SUPERIOR: SIGNIFICADO ---
-    # Decidimos qué texto mostrar según la posición
-    texto_mostrar = fila['Significado'] # Por defecto
+   # --- PARTE SUPERIOR: SIGNIFICADO ---
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
-
+    
+    # Aquí es donde quitamos el paréntesis con la posición
     st.markdown(f"""
     <div class="resultado-card">
-        <h2 style='color:{color_vibe}; margin:0;'>{carta_sel} ({posicion})</h2>
+        <h2 style='color:{color_vibe}; margin:0; font-size: 2rem;'>{carta_sel}</h2>
         <p style='color:#7B1FA2; font-weight:bold; font-size:1.2rem; margin:10px 0;'>✨ {palabra_clave}</p>
-        <p style='font-size:1.1rem; line-height:1.5;'>{texto_mostrar}</p>
+        <p style='font-size:1.1rem; line-height:1.5;'>{fila['Significado']}</p>
     </div>
     """, unsafe_allow_html=True)
 
