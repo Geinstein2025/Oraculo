@@ -4,7 +4,7 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS (Simplificado y robusto)
+# 2. Estilo CSS Seguro
 st.markdown("""
     <style>
     .stApp { background-color: #F0F2F6; }
@@ -12,13 +12,13 @@ st.markdown("""
     /* Contenedor de la carta */
     .main-card {
         background-color: #FFFFFF;
-        padding: 20px;
+        padding: 25px;
         border-radius: 20px;
         box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
         border-top: 6px solid #7B1FA2;
     }
 
-    /* Badge del número al lado del nombre */
+    /* Badge del número */
     .numero-badge {
         background-color: #7B1FA2;
         color: white;
@@ -26,20 +26,8 @@ st.markdown("""
         border-radius: 10px;
         font-size: 1.2rem;
         font-weight: bold;
-        vertical-align: middle;
+        display: inline-block;
         margin-left: 10px;
-    }
-
-    /* Barra de datos inferior */
-    .data-bar {
-        display: flex;
-        justify-content: space-around;
-        background-color: #4A148C;
-        color: white;
-        padding: 12px;
-        border-radius: 12px;
-        margin-top: 15px;
-        text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -58,16 +46,18 @@ try:
     df = cargar_datos()
     st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # 1. SELECCIÓN (Arriba)
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        carta_sel = st.selectbox("Carta:", df['Arcano'].unique())
-    with c2:
-        posicion = st.radio("Energía:", ["Derecha", "Invertida"], horizontal=True)
+    # --- 1. SELECTORES (Corregidos) ---
+    col_arcano, col_energia = st.columns([2, 1])
+    with col_arcano:
+        lista_cartas = df['Arcano'].unique()
+        carta_sel = st.selectbox("Selecciona tu Arcano:", lista_cartas)
+    
+    with col_energia:
+        posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
     
     fila = df[df['Arcano'] == carta_sel].iloc[0]
 
-    # 2. MENSAJES ESPECÍFICOS (Ahora en la parte superior)
+    # --- 2. MENSAJES ESPECÍFICOS (Arriba) ---
     st.markdown("### 🔍 Mensajes Específicos")
     t1, t2, t3, t4 = st.tabs(["❤️ Amor", "💼 Trabajo", "💰 Dinero", "🏥 Salud"])
     
@@ -76,7 +66,7 @@ try:
         if pd.notna(texto) and str(texto).strip() != "":
             st.info(texto)
         else:
-            st.write("_Sin detalles disponibles._")
+            st.write("_Sin detalles específicos._")
 
     with t1: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
     with t2: render_content('Trabajo' if posicion == "Derecha" else 'Trabajo Inv')
@@ -85,26 +75,21 @@ try:
 
     st.divider()
 
-    # 3. SIGNIFICADO PRINCIPAL (Debajo de los mensajes)
+    # --- 3. SIGNIFICADO Y FICHA TÉCNICA (Diseño Robusto) ---
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
+    # Encabezado de la carta
     st.markdown(f"""
     <div class="main-card">
-        <div style="margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
             <span style="color:{color_vibe}; font-size: 2.2rem; font-weight: bold;">{carta_sel}</span>
             <span class="numero-badge">#{fila['N°']}</span>
         </div>
-        <h4 style="color:#7B1FA2; margin: 5px 0;">✨ {palabra_clave}</h4>
-        <p style="font-size:1.1rem; line-height:1.5; color:#333;">{fila['Significado']}</p>
-        
-        <div class="data-bar">
-            <div><small>SI/NO</small><br><b>{fila['SI/NO']}</b></div>
-            <div><small>TIEMPO</small><br><b>{fila['Tiempo']}</b></div>
-            <div><small>REPRESENTA</small><br><b>{fila['Que representa']}</b></div>
-        </div>
+        <h4 style="color:#7B1FA2; margin: 10px 0;">✨ {palabra_clave}</h4>
+        <p style="font-size:1.1rem; line-height:1.6; color:#333;">{fila['Significado']}</p>
     </div>
     """, unsafe_allow_html=True)
 
-except Exception as e:
-    st.error(f"Error: {e}")
+    # Barra de datos usando columnas nativas (Esto NO falla)
+    st.
