@@ -4,12 +4,12 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS Seguro
+# 2. Estilo CSS (Limpiando errores previos)
 st.markdown("""
     <style>
     .stApp { background-color: #F0F2F6; }
     
-    /* Contenedor de la carta */
+    /* Tarjeta Principal */
     .main-card {
         background-color: #FFFFFF;
         padding: 25px;
@@ -24,15 +24,24 @@ st.markdown("""
         color: white;
         padding: 4px 12px;
         border-radius: 10px;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: bold;
         display: inline-block;
         margin-left: 10px;
     }
+
+    /* Caja de Datos Rápidos (SI/NO y Tiempo) */
+    .quick-data {
+        background-color: #F3E5F5;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #E1BEE7;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Carga de datos
+# Conexión a Google Sheets
 sheet_id = "1ZJNYTlIoEm8pmjw2lbjWFBENMitQy7NmG_oT5DhKkHA"
 sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -46,12 +55,10 @@ try:
     df = cargar_datos()
     st.markdown("<h1 style='text-align:center; color:#4A148C;'>🔮 MI ORÁCULO</h1>", unsafe_allow_html=True)
 
-    # --- 1. SELECTORES (Corregidos) ---
+    # --- 1. SELECCIÓN ---
     col_arcano, col_energia = st.columns([2, 1])
     with col_arcano:
-        lista_cartas = df['Arcano'].unique()
-        carta_sel = st.selectbox("Selecciona tu Arcano:", lista_cartas)
-    
+        carta_sel = st.selectbox("Selecciona tu Arcano:", df['Arcano'].unique())
     with col_energia:
         posicion = st.radio("Orientación:", ["Derecha", "Invertida"], horizontal=True)
     
@@ -75,11 +82,10 @@ try:
 
     st.divider()
 
-    # --- 3. SIGNIFICADO Y FICHA TÉCNICA (Diseño Robusto) ---
+    # --- 3. DISEÑO DE LA CARTA Y DATOS ---
     color_vibe = "#2E7D32" if posicion == "Derecha" else "#C62828"
     palabra_clave = fila['Palabra clave'] if posicion == "Derecha" else fila['Palabra invertida']
 
-    # Encabezado de la carta
     st.markdown(f"""
     <div class="main-card">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -88,16 +94,23 @@ try:
         </div>
         <h4 style="color:#7B1FA2; margin: 10px 0;">✨ {palabra_clave}</h4>
         <p style="font-size:1.1rem; line-height:1.6; color:#333;">{fila['Significado']}</p>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        
+        <div style="margin-bottom: 15px;">
+            <p style="color:#4A148C; font-weight:bold; margin-bottom:5px; text-transform:uppercase; font-size:0.8rem;">💡 Lo que representa:</p>
+            <p style="font-size:1.1rem; color:#444;">{fila['Que representa']}</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Barra de datos usando columnas nativas (Esto NO falla)
+    # Datos rápidos en la parte inferior para que no estorben
     st.write("")
-    with st.container():
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Respuesta", fila['SI/NO'])
-        m2.metric("Tiempo", fila['Tiempo'])
-        m3.metric("Representa", fila['Que representa'])
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(f"""<div class="quick-data"><small>RESPUESTA</small><br><b>{fila['SI/NO']}</b></div>""", unsafe_allow_html=True)
+    with c2:
+        st.markdown(f"""<div class="quick-data"><small>TIEMPO</small><br><b>{fila['Tiempo']}</b></div>""", unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"Error técnico: {e}")
