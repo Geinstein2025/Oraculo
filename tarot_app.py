@@ -4,39 +4,39 @@ import pandas as pd
 # 1. Configuración de página
 st.set_page_config(page_title="Oráculo", page_icon="🔮", layout="wide")
 
-# 2. Estilo CSS para Barra Negra con Texto Blanco
+# 2. CSS Blindado contra Modo Oscuro de Celulares
 st.markdown("""
     <style>
-    .stApp { background-color: #F8F9FB; }
+    /* Forzamos que la página sea siempre clara */
+    .stApp { 
+        background-color: #F8F9FB !important; 
+    }
     
-    /* --- SELECTOR: BARRA NEGRA / TEXTO BLANCO --- */
+    /* ESTILO PARA SELECTBOX: BARRA NEGRA / TEXTO BLANCO (Como pediste) */
     div[data-baseweb="select"] > div {
-        background-color: #1A1A1A !important; /* Negro Mate */
-        color: #FFFFFF !important;             /* Texto Blanco */
+        background-color: #1A1A1A !important;
+        color: #FFFFFF !important;
         border: 1px solid #7B1FA2 !important;
     }
-    
-    /* Aseguramos que el icono de la flecha también sea claro */
-    div[data-baseweb="select"] svg {
-        fill: white !important;
+    div[data-baseweb="select"] svg { fill: white !important; }
+    div[data-baseweb="popover"] li { color: #FFFFFF !important; background-color: #1A1A1A !important; }
+
+    /* --- SOLUCIÓN PARA TEXTO INVISIBLE EN CELULAR --- */
+    /* Forzamos que TODO el texto de lectura sea Gris Carbón muy oscuro */
+    .texto-lectura {
+        color: #1F1F1F !important; 
+        font-size: 1.1rem !important;
+        line-height: 1.6 !important;
+        display: block !important;
+        margin-bottom: 15px !important;
     }
 
-    /* Lista de opciones cuando se abre el menú */
-    div[data-baseweb="popover"] li {
-        color: #FFFFFF !important;
-        background-color: #1A1A1A !important;
-    }
-    
-    /* Resaltado cuando pasas el dedo por una opción */
-    div[data-baseweb="popover"] li:hover {
-        background-color: #4A148C !important;
-    }
-
-    /* Resto de textos de la app en Gris Oscuro para contraste */
-    p, span, label { color: #2D3436 !important; }
     .section-title { color: #4A148C !important; font-weight: bold; font-size: 1.5rem; border-bottom: 2px solid #E1BEE7; margin-bottom: 15px; }
     .num-badge { background-color: #7B1FA2 !important; color: white !important; padding: 2px 10px; border-radius: 8px; font-weight: bold; }
     .mini-dato { background-color: #EDE7F6 !important; color: #4A148C !important; border: 1px solid #D1C4E9; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; display: inline-block; font-weight: bold; }
+    
+    /* Forzar visibilidad de etiquetas de radio y select */
+    label p { color: #4A148C !important; font-weight: bold !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -75,7 +75,8 @@ try:
     def render_content(col_name):
         texto = fila[col_name]
         if pd.notna(texto) and str(texto).strip() != "":
-            st.markdown(f"<div style='color: #2D3436; background-color: #E3F2FD; padding: 15px; border-radius: 10px; line-height: 1.5;'>{texto}</div>", unsafe_allow_html=True)
+            # Usamos la clase texto-lectura para asegurar visibilidad
+            st.markdown(f"<div class='texto-lectura' style='background-color: #E3F2FD; padding: 15px; border-radius: 10px;'>{texto}</div>", unsafe_allow_html=True)
         else: st.write("Sin detalles específicos.")
 
     with tabs[0]: render_content('Amor' if posicion == "Derecha" else 'Amor Inv')
@@ -98,11 +99,17 @@ try:
             <p style="color:#7B1FA2 !important; font-weight:bold; font-size:1.1rem;">✨ {palabra_clave}</p>
         """, unsafe_allow_html=True)
         
-        st.markdown(f"<div style='color: #2D3436 !important; line-height: 1.6;'>{fila['Significado']}</div>", unsafe_allow_html=True)
+        # AQUÍ ESTÁ EL CAMBIO CLAVE: Forzamos el texto debajo de Inicio
+        st.markdown(f"<div class='texto-lectura'>{fila['Significado']}</div>", unsafe_allow_html=True)
         
         st.write("")
         st.markdown("<b style='color: #4A148C;'>💡 LO QUE REPRESENTA:</b>", unsafe_allow_html=True)
-        st.success(fila['Que representa'])
+        # Forzamos color negro dentro del st.success
+        st.markdown(f"""
+            <div style="background-color: #D4EDDA; color: #155724; padding: 15px; border-radius: 10px; border: 1px solid #C3E6CB;">
+                {fila['Que representa']}
+            </div>
+        """, unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"Error: {e}")
